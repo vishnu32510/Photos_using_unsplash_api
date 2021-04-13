@@ -46,12 +46,21 @@ class Photo{
 
 class Url {
   String regular;
+  String full;
+  String thumbnail;
+  String small;
+  String raw;
 
-  Url({this.regular});
+  Url({this.regular,this.small,this.full,this.thumbnail,this.raw});
 
   factory Url.fromjson(Map<String, dynamic> json) {
     return Url(
-        regular: json['regular']
+      regular: json['regular'],
+      full: json['full'],
+      thumbnail: json['thumb'],
+      raw: json['raw'],
+      small: json['small'],
+
     );
   }
 }

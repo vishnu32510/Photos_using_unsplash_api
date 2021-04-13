@@ -1,8 +1,10 @@
 
 import 'package:flutter/material.dart';
+import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:unsplash_api/constants.dart';
 import 'package:unsplash_api/screenone/model.dart';
 import 'package:unsplash_api/screenone/view.dart';
+import 'package:unsplash_api/screentwo/photodetails.dart';
 
 import '../widget.dart';
 
@@ -13,14 +15,48 @@ class one extends StatefulWidget {
 
 class _oneState extends State<one> {
   Future _list;
+  int page = 1;
+  int length = 6;
+  bool visible = false;
+  ScrollController _controller;
+  var photourl;
+  List list = [];
   // List<Photo> val = [];
   PhotoList photoList;
   @override
   void initState() {
     // TODO: implement initState
-    _list = view();
+    _list = view(page,length);
+    _controller = ScrollController();
+    _controller.addListener(_scrollListener);
     print(_list);
     super.initState();
+  }
+
+  _scrollListener() {
+    if (_controller.offset >= _controller.position.maxScrollExtent &&
+        !_controller.position.outOfRange)
+    {
+      print('inside scroll listner');
+      print(_controller.offset);
+      print(_controller.position);
+      print(_controller.position.outOfRange);
+      print(_controller.position.maxScrollExtent);
+      print('inside scroll listner');
+      setState(() {
+        // message = "reach the bottom";
+        length= length+4;
+        _list = view(page,length);
+
+      }
+      );
+    }
+    if (_controller.offset <= _controller.position.minScrollExtent &&
+        !_controller.position.outOfRange) {
+      setState(() {
+        // message = "reach the top";
+      });
+    }
   }
 
   @override
@@ -45,12 +81,13 @@ class _oneState extends State<one> {
               // print('inside if statement');
               // print(snapshot.data);
               photoList = snapshot.data;
+              list = photoList.photos;
               // print(photoList.photos[0]);
               // print(photoList.photos.length);
               // print(snapshot.data);
               // print('inside if statement');
               // return Container(color: Colors.red,);
-              return photolist(photoList);
+              return photolist();
             }else {
               return Container(
                 child: Center(child: CircularProgressIndicator(),),
@@ -59,7 +96,87 @@ class _oneState extends State<one> {
           },
 
         ),
+        floatingActionButton: Row(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: [
+            Expanded(
+              flex: 2,
+              child: Visibility(
+                visible: visible,
+                child: FloatingActionButton(
+                  onPressed: () {
+                    setState(() {
+                      if(page>=2) {
+                        _list = view(--page,length);
+                      }
+                      if(page == 1) {
+                        visible = false;
+                      }
+                    });
+                  },
+                  backgroundColor: Colors.red,
+                  child: Icon(
+                    Icons.skip_previous,
+                  ),
+                ),
+              ),
+            ),
+            Expanded(
+              flex: 2,
+              child: FloatingActionButton(
+                onPressed: () {
+                  setState(() {
+                    _list = view(++page,length);
+                    visible = true;
+                  });
+                },
+                backgroundColor: Colors.red,
+                child: Icon(
+                  Icons.skip_next,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
+    );
+  }
+  Widget photolist() {
+    return StaggeredGridView.countBuilder(
+      controller: _controller,
+      crossAxisCount: 2,
+      staggeredTileBuilder: (int index) =>
+      new StaggeredTile.count(1, index.isEven ? 2 : 1),
+      // mainAxisSpacing: 4.0,
+      // crossAxisSpacing: 4.0,
+      itemCount: list.length,
+      itemBuilder: (BuildContext context, int index) {
+        photourl = list[index].url.regular;
+        // print('inside listview');
+        // print(photourl);
+        return Container(
+          margin: EdgeInsets.all(5),
+          decoration: BoxDecoration(
+            color: backgroundcolor,
+            // borderRadius: BorderRadius.circular(10),
+          ),
+          child: InkWell(
+            onTap: () {
+              Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (context) => photodetails(photoList.photos[index]))
+              );
+            },
+            child: Image.network(
+              '$photourl',
+              fit: BoxFit.cover,
+            ),
+          ),
+          // child: Text(
+          //   '$photourl'
+          // ),
+        );
+      },
     );
   }
 }
