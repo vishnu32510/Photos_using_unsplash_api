@@ -21,7 +21,8 @@ class _oneState extends State<one> {
   bool visible = false;
   ScrollController _controller;
   var photourl;
-
+  TextEditingController searchbar = new TextEditingController();
+  int searchval = 0;
   List list = [];
   // List<Photo> val = [];
   PhotoList photoList;
@@ -31,7 +32,12 @@ class _oneState extends State<one> {
     if (qualityurl == 3) {
       qualityurl=3;
     }
-    _list = view(page,length);
+    if(searchval == 0) {
+      _list = view(page,length,photosurl);
+    }else {
+      _list = searchview(page, length, searchurl, searchbar.text,context);
+    }
+    _list = view(page,length,photosurl);
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
     print(_list);
@@ -58,7 +64,12 @@ class _oneState extends State<one> {
       setState(() {
         // message = "reach the bottom";
         length= length+10;
-        _list = view(page,length);
+        if(searchval == 0) {
+          _list = view(page,length,photosurl);
+        }else {
+          _list = searchview(page, length, searchurl, searchbar.text,context);
+        }
+        // _list = view(page,length,photosurl);
 
       }
       );
@@ -73,6 +84,7 @@ class _oneState extends State<one> {
 
   @override
   Widget build(BuildContext context) {
+    Size size = MediaQuery.of(context).size;
     return SafeArea(
       child: Scaffold(
         backgroundColor: Colors.black,
@@ -80,13 +92,60 @@ class _oneState extends State<one> {
           actions: [
             popupImagelook(),
           ],
-          leading: Icon(
-            Icons.camera_alt_outlined
+          leading: PopupMenuButton(
+            icon: Icon(Icons.image_search),
+            color: appbarcolor,
+            offset: Offset(0,60),
+            itemBuilder: (context) => [
+              PopupMenuItem(
+                  child: Container(
+                    width: size.width,
+                    child: TextField(
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontStyle: FontStyle.italic,
+                      ),
+                      controller: searchbar,
+                      cursorColor: Colors.white,
+                      decoration: InputDecoration(
+                        icon: IconButton(
+                          onPressed: () {
+                            if(searchbar.text!=null) {
+                              setState(() {
+                                searchval =1;
+                                _list = searchview(page, length, searchurl, searchbar.text,context);
+                                // searchbar = null;
+                                FocusScope.of(context).requestFocus(FocusNode());
+                              });
+                              Navigator.pop(context);
+                            }
+                          },
+                          icon:Icon(Icons.search),
+                          color: Colors.white,
+                        ),
+                        labelText: 'Search',
+                        labelStyle: TextStyle(
+                          color: Colors.white,
+                        )
+                      ),
+                    ),
+                  )
+              )
+            ],
           ),
           backgroundColor: appbarcolor,
           centerTitle: true,
-          title: Text(
-            'UnSplash'
+          title: InkWell(
+            onTap: () {
+              setState(() {
+                searchval = 0;
+                _list = view(page,length,photosurl);
+                FocusScope.of(context).requestFocus(FocusNode());
+              });
+            },
+            child: Text(
+              'UnSplash'
+            ),
           ),
         ),
         body: FutureBuilder(
@@ -123,7 +182,12 @@ class _oneState extends State<one> {
                     setState(() {
                       if(page>=2) {
                         length=10;
-                        _list = view(--page,length);
+                        if(searchval == 0) {
+                          _list = view(--page,length,photosurl);
+                        }else {
+                          _list = searchview(--page, length, searchurl, searchbar.text,context);
+                        }
+                        // _list = view(--page,length,photourl);
                       }
                       if(page == 1) {
                         visible = false;
@@ -144,7 +208,12 @@ class _oneState extends State<one> {
                   setState(() {
                     _tothetop();
                     length=10;
-                    _list = view(++page,length);
+                    if(searchval == 0) {
+                      _list = view(++page,length,photosurl);
+                    }else {
+                      _list = searchview(++page, length, searchurl, searchbar.text,context);
+                    }
+                    // _list = view(++page,length,photosurl);
                     visible = true;
                     length=10;
                   });
