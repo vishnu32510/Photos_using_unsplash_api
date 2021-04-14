@@ -8,6 +8,7 @@ import 'package:unsplash_api/screentwo/photodetails.dart';
 
 import '../widget.dart';
 
+
 class one extends StatefulWidget {
   @override
   _oneState createState() => _oneState();
@@ -16,21 +17,32 @@ class one extends StatefulWidget {
 class _oneState extends State<one> {
   Future _list;
   int page = 1;
-  int length = 6;
+  int length = 10;
   bool visible = false;
   ScrollController _controller;
   var photourl;
+
   List list = [];
   // List<Photo> val = [];
   PhotoList photoList;
   @override
   void initState() {
     // TODO: implement initState
+    if (qualityurl == 3) {
+      qualityurl=3;
+    }
     _list = view(page,length);
     _controller = ScrollController();
     _controller.addListener(_scrollListener);
     print(_list);
     super.initState();
+  }
+
+  _tothetop() {
+    _controller.animateTo(
+        _controller.position.minScrollExtent,
+        duration: Duration(milliseconds: 500),
+        curve: Curves.fastOutSlowIn);
   }
 
   _scrollListener() {
@@ -45,7 +57,7 @@ class _oneState extends State<one> {
       print('inside scroll listner');
       setState(() {
         // message = "reach the bottom";
-        length= length+4;
+        length= length+10;
         _list = view(page,length);
 
       }
@@ -65,6 +77,9 @@ class _oneState extends State<one> {
       child: Scaffold(
         backgroundColor: Colors.black,
         appBar: AppBar(
+          actions: [
+            popupImagelook(),
+          ],
           leading: Icon(
             Icons.camera_alt_outlined
           ),
@@ -107,6 +122,7 @@ class _oneState extends State<one> {
                   onPressed: () {
                     setState(() {
                       if(page>=2) {
+                        length=10;
                         _list = view(--page,length);
                       }
                       if(page == 1) {
@@ -126,8 +142,11 @@ class _oneState extends State<one> {
               child: FloatingActionButton(
                 onPressed: () {
                   setState(() {
+                    _tothetop();
+                    length=10;
                     _list = view(++page,length);
                     visible = true;
+                    length=10;
                   });
                 },
                 backgroundColor: Colors.red,
@@ -151,9 +170,25 @@ class _oneState extends State<one> {
       // crossAxisSpacing: 4.0,
       itemCount: list.length,
       itemBuilder: (BuildContext context, int index) {
-        photourl = list[index].url.regular;
-        // print('inside listview');
-        // print(photourl);
+
+        // if(qualityurl==1) {
+        //   print(qualityurl);
+        //   photourl = list[index].url.raw;
+        // }else if(qualityurl==2) {
+        //   print(qualityurl);
+        //   photourl = list[index].url.full;
+        // }else
+          if(qualityurl==5) {
+          print(qualityurl);
+          photourl = list[index].url.thumbnail;
+        }else if(qualityurl==4) {
+          print(qualityurl);
+          photourl = list[index].url.small;
+        }else {
+          print(qualityurl);
+          photourl = list[index].url.regular;
+
+        }
         return Container(
           margin: EdgeInsets.all(5),
           decoration: BoxDecoration(
@@ -179,4 +214,18 @@ class _oneState extends State<one> {
       },
     );
   }
+  Widget qualitysnackermsg(String msg) {
+    return SnackBar(
+      content: Text(
+        '$msg'
+      ),
+      action: SnackBarAction(
+        label: 'Change',
+        onPressed: () {
+
+        },
+      ),
+    );
+  }
 }
+

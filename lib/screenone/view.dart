@@ -16,5 +16,6 @@ Future view(int page, int length) async {
   print(data);
   print(data[0]['likes']);
   var re = PhotoList.fromjson(data);
+  print(re.photos.length);
   return re;
 }
