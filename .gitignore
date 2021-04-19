@@ -8,7 +8,7 @@
 .buildlog/
 .history
 .svn/
-
+android/unsplash_api.zip
 # IntelliJ related
 *.iml
 *.ipr
