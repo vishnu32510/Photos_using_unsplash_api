@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 
 import 'package:flutter/cupertino.dart';
+import 'package:lottie/lottie.dart';
 import 'package:unsplash_api/constants.dart';
 import 'package:unsplash_api/screenone/model.dart';
 import 'package:unsplash_api/screentwo/photodetails.dart';
@@ -104,6 +105,15 @@ PopupMenuItem popupitemImagelook(BuildContext context, String title, int val) {
           color: Colors.white,
         ),
       ),
+    ),
+  );
+}
+
+onloading() {
+  return Container(
+    child: Lottie.asset(
+      'assets/walk_loading.json',
+      repeat: true,
     ),
   );
 }

@@ -5,7 +5,7 @@ import 'package:unsplash_api/constants.dart';
 import 'package:unsplash_api/screenone/model.dart';
 import 'package:unsplash_api/screenone/view.dart';
 import 'package:unsplash_api/screentwo/photodetails.dart';
-
+import 'package:cached_network_image/cached_network_image.dart';
 import '../widget.dart';
 
 
@@ -17,7 +17,7 @@ class one extends StatefulWidget {
 class _oneState extends State<one> {
   Future _list;
   int page = 1;
-  int length = 10;
+  int length = 30;
   bool visible = false;
   ScrollController _controller;
   var photourl;
@@ -39,7 +39,7 @@ class _oneState extends State<one> {
     }
     _list = view(page,length,photosurl);
     _controller = ScrollController();
-    _controller.addListener(_scrollListener);
+    // _controller.addListener(_scrollListener);
     print(_list);
     super.initState();
   }
@@ -51,36 +51,36 @@ class _oneState extends State<one> {
         curve: Curves.fastOutSlowIn);
   }
 
-  _scrollListener() {
-    if (_controller.offset >= _controller.position.maxScrollExtent &&
-        !_controller.position.outOfRange)
-    {
-      print('inside scroll listner');
-      print(_controller.offset);
-      print(_controller.position);
-      print(_controller.position.outOfRange);
-      print(_controller.position.maxScrollExtent);
-      print('inside scroll listner');
-      setState(() {
-        // message = "reach the bottom";
-        length= length+10;
-        if(searchval == 0) {
-          _list = view(page,length,photosurl);
-        }else {
-          _list = searchview(page, length, searchurl, searchbar.text,context);
-        }
-        // _list = view(page,length,photosurl);
-
-      }
-      );
-    }
-    if (_controller.offset <= _controller.position.minScrollExtent &&
-        !_controller.position.outOfRange) {
-      setState(() {
-        // message = "reach the top";
-      });
-    }
-  }
+  // _scrollListener() {
+  //   if (_controller.offset >= _controller.position.maxScrollExtent &&
+  //       !_controller.position.outOfRange)
+  //   {
+  //     print('inside scroll listner');
+  //     print(_controller.offset);
+  //     print(_controller.position);
+  //     print(_controller.position.outOfRange);
+  //     print(_controller.position.maxScrollExtent);
+  //     print('inside scroll listner');
+  //     setState(() {
+  //       // message = "reach the bottom";
+  //       length= length+10;
+  //       if(searchval == 0) {
+  //         _list = view(page,length,photosurl);
+  //       }else {
+  //         _list = searchview(page, length, searchurl, searchbar.text,context);
+  //       }
+  //       // _list = view(page,length,photosurl);
+  //
+  //     }
+  //     );
+  //   }
+  //   if (_controller.offset <= _controller.position.minScrollExtent &&
+  //       !_controller.position.outOfRange) {
+  //     setState(() {
+  //       // message = "reach the top";
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -139,6 +139,7 @@ class _oneState extends State<one> {
             onTap: () {
               setState(() {
                 searchval = 0;
+                page=1;
                 _list = view(page,length,photosurl);
                 FocusScope.of(context).requestFocus(FocusNode());
               });
@@ -164,7 +165,7 @@ class _oneState extends State<one> {
               return photolist();
             }else {
               return Container(
-                child: Center(child: CircularProgressIndicator(),),
+                child: Center(child: onloading(),),
               );
             }
           },
@@ -184,8 +185,10 @@ class _oneState extends State<one> {
                         length=10;
                         if(searchval == 0) {
                           _list = view(--page,length,photosurl);
+                          // _tothetop();
                         }else {
                           _list = searchview(--page, length, searchurl, searchbar.text,context);
+                          // _tothetop();
                         }
                         // _list = view(--page,length,photourl);
                       }
@@ -206,16 +209,17 @@ class _oneState extends State<one> {
               child: FloatingActionButton(
                 onPressed: () {
                   setState(() {
-                    _tothetop();
-                    length=10;
+                    // length=10;
                     if(searchval == 0) {
                       _list = view(++page,length,photosurl);
+                      _tothetop();
                     }else {
                       _list = searchview(++page, length, searchurl, searchbar.text,context);
+                      _tothetop();
                     }
                     // _list = view(++page,length,photosurl);
                     visible = true;
-                    length=10;
+                    // length=10;
                   });
                 },
                 backgroundColor: Colors.red,
@@ -239,14 +243,6 @@ class _oneState extends State<one> {
       // crossAxisSpacing: 4.0,
       itemCount: list.length,
       itemBuilder: (BuildContext context, int index) {
-
-        // if(qualityurl==1) {
-        //   print(qualityurl);
-        //   photourl = list[index].url.raw;
-        // }else if(qualityurl==2) {
-        //   print(qualityurl);
-        //   photourl = list[index].url.full;
-        // }else
           if(qualityurl==5) {
           print(qualityurl);
           photourl = list[index].url.thumbnail;
@@ -256,7 +252,6 @@ class _oneState extends State<one> {
         }else {
           print(qualityurl);
           photourl = list[index].url.regular;
-
         }
         return Container(
           margin: EdgeInsets.all(5),
