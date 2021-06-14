@@ -1,9 +1,10 @@
-
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
+import 'package:unsplash_api/screenone/bloc_screenone/photos_bloc.dart';
+import 'package:unsplash_api/screenone/model.dart';
 import 'package:unsplash_api/screenone/one.dart';
 
 class Splash extends StatefulWidget {
@@ -20,16 +21,18 @@ class _SplashState extends State<Splash> {
   }
 
   startTime() async {
-    var duration = new Duration(seconds : 10);
+    var duration = new Duration(seconds: 10);
     return new Timer(duration, route);
   }
 
   route() {
     Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (context) => one()
+        builder: (context) =>
+            one()
     )
     );
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

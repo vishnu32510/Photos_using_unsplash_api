@@ -1,13 +1,13 @@
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_staggered_grid_view/flutter_staggered_grid_view.dart';
 import 'package:unsplash_api/constants.dart';
+import 'package:unsplash_api/screenone/bloc_screenone/photos_bloc.dart';
 import 'package:unsplash_api/screenone/model.dart';
 import 'package:unsplash_api/screenone/view.dart';
 import 'package:unsplash_api/screentwo/photodetails.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import '../widget.dart';
-
 
 class one extends StatefulWidget {
   @override
@@ -24,31 +24,32 @@ class _oneState extends State<one> {
   TextEditingController searchbar = new TextEditingController();
   int searchval = 0;
   List list = [];
+  PhotosBloc _photosBloc;
+
   // List<Photo> val = [];
-  PhotoList photoList;
+  // PhotoList photoList;
+
   @override
   void initState() {
-    // TODO: implement initState
     if (qualityurl == 3) {
-      qualityurl=3;
+      qualityurl = 3;
     }
-    if(searchval == 0) {
-      _list = view(page,length,photosurl);
-    }else {
-      _list = searchview(page, length, searchurl, searchbar.text,context);
+    if (searchval == 0) {
+      _list = view(page, length, photosurl);
+    } else {
+      _list = searchview(page, length, searchurl, searchbar.text, context);
     }
-    _list = view(page,length,photosurl);
+    _list = view(page, length, photosurl);
     _controller = ScrollController();
     // _controller.addListener(_scrollListener);
-    print(_list);
+    // print(_list);
     super.initState();
+    _photosBloc = context.read<PhotosBloc>();
   }
 
   _tothetop() {
-    _controller.animateTo(
-        _controller.position.minScrollExtent,
-        duration: Duration(milliseconds: 500),
-        curve: Curves.fastOutSlowIn);
+    _controller.animateTo(_controller.position.minScrollExtent,
+        duration: Duration(milliseconds: 500), curve: Curves.fastOutSlowIn);
   }
 
   // _scrollListener() {
@@ -95,42 +96,41 @@ class _oneState extends State<one> {
           leading: PopupMenuButton(
             icon: Icon(Icons.image_search),
             color: appbarcolor,
-            offset: Offset(0,60),
+            offset: Offset(0, 60),
             itemBuilder: (context) => [
               PopupMenuItem(
                   child: Container(
-                    width: size.width,
-                    child: TextField(
-                      style: TextStyle(
+                width: size.width,
+                child: TextField(
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontStyle: FontStyle.italic,
+                  ),
+                  controller: searchbar,
+                  cursorColor: Colors.white,
+                  decoration: InputDecoration(
+                      icon: IconButton(
+                        onPressed: () {
+                          if (searchbar.text != null) {
+                            setState(() {
+                              searchval = 1;
+                              _list = searchview(page, length, searchurl,
+                                  searchbar.text, context);
+                              // searchbar = null;
+                              FocusScope.of(context).requestFocus(FocusNode());
+                            });
+                            Navigator.pop(context);
+                          }
+                        },
+                        icon: Icon(Icons.search),
                         color: Colors.white,
-                        fontStyle: FontStyle.italic,
                       ),
-                      controller: searchbar,
-                      cursorColor: Colors.white,
-                      decoration: InputDecoration(
-                        icon: IconButton(
-                          onPressed: () {
-                            if(searchbar.text!=null) {
-                              setState(() {
-                                searchval =1;
-                                _list = searchview(page, length, searchurl, searchbar.text,context);
-                                // searchbar = null;
-                                FocusScope.of(context).requestFocus(FocusNode());
-                              });
-                              Navigator.pop(context);
-                            }
-                          },
-                          icon:Icon(Icons.search),
-                          color: Colors.white,
-                        ),
-                        labelText: 'Search',
-                        labelStyle: TextStyle(
-                          color: Colors.white,
-                        )
-                      ),
-                    ),
-                  )
-              )
+                      labelText: 'Search',
+                      labelStyle: TextStyle(
+                        color: Colors.white,
+                      )),
+                ),
+              ))
             ],
           ),
           backgroundColor: appbarcolor,
@@ -139,37 +139,53 @@ class _oneState extends State<one> {
             onTap: () {
               setState(() {
                 searchval = 0;
-                page=1;
-                _list = view(page,length,photosurl);
+                page = 1;
+                _list = view(page, length, photosurl);
                 FocusScope.of(context).requestFocus(FocusNode());
               });
             },
-            child: Text(
-              'UnSplash'
-            ),
+            child: Text('UnSplash'),
           ),
         ),
-        body: FutureBuilder(
-          future: _list,
-          builder: (context, snapshot) {
-            if(snapshot.hasData) {
-              // print('inside if statement');
-              // print(snapshot.data);
-              photoList = snapshot.data;
-              list = photoList.photos;
-              // print(photoList.photos[0]);
-              // print(photoList.photos.length);
-              // print(snapshot.data);
-              // print('inside if statement');
-              // return Container(color: Colors.red,);
-              return photolist();
-            }else {
-              return Container(
-                child: Center(child: onloading(),),
-              );
+        // body: FutureBuilder(
+        //   future: _list,
+        //   builder: (context, snapshot) {
+        //     if(snapshot.hasData) {
+        //       // print('inside if statement');
+        //       // print(snapshot.data);
+        //       photoList = snapshot.data;
+        //       list = photoList.photos;
+        //       // print(photoList.photos[0]);
+        //       // print(photoList.photos.length);
+        //       // print(snapshot.data);
+        //       // print('inside if statement');
+        //       // return Container(color: Colors.red,);
+        //       return photolist();
+        //     }else {
+        //       return Container(
+        //         child: Center(child: onloading(),),
+        //       );
+        //     }
+        //   },
+        //
+        // ),
+        body: BlocBuilder<PhotosBloc, PhotosState>(
+          builder: (context, state) {
+            switch (state.status) {
+              case PhotosStatus.loading:
+                return Container(
+                  child: Center(
+                    child: onloading(),
+                  ),
+                );
+              case PhotosStatus.success:
+                return Container(
+                  child: photolist(state.photoList),
+                );
+              default:
+                return Container();
             }
           },
-
         ),
         floatingActionButton: Row(
           crossAxisAlignment: CrossAxisAlignment.end,
@@ -181,18 +197,19 @@ class _oneState extends State<one> {
                 child: FloatingActionButton(
                   onPressed: () {
                     setState(() {
-                      if(page>=2) {
-                        length=10;
-                        if(searchval == 0) {
-                          _list = view(--page,length,photosurl);
+                      if (page >= 2) {
+                        length = 10;
+                        if (searchval == 0) {
+                          _list = view(--page, length, photosurl);
                           // _tothetop();
-                        }else {
-                          _list = searchview(--page, length, searchurl, searchbar.text,context);
+                        } else {
+                          _list = searchview(--page, length, searchurl,
+                              searchbar.text, context);
                           // _tothetop();
                         }
                         // _list = view(--page,length,photourl);
                       }
-                      if(page == 1) {
+                      if (page == 1) {
                         visible = false;
                       }
                     });
@@ -210,11 +227,12 @@ class _oneState extends State<one> {
                 onPressed: () {
                   setState(() {
                     // length=10;
-                    if(searchval == 0) {
-                      _list = view(++page,length,photosurl);
+                    if (searchval == 0) {
+                      _list = view(++page, length, photosurl);
                       _tothetop();
-                    }else {
-                      _list = searchview(++page, length, searchurl, searchbar.text,context);
+                    } else {
+                      _list = searchview(
+                          ++page, length, searchurl, searchbar.text, context);
                       _tothetop();
                     }
                     // _list = view(++page,length,photosurl);
@@ -233,26 +251,29 @@ class _oneState extends State<one> {
       ),
     );
   }
-  Widget photolist() {
+
+  Widget photolist(PhotoList photoList) {
     return StaggeredGridView.countBuilder(
       controller: _controller,
       crossAxisCount: 2,
       staggeredTileBuilder: (int index) =>
-      new StaggeredTile.count(1, index.isEven ? 2 : 1),
+          new StaggeredTile.count(1, index.isEven ? 2 : 1),
       // mainAxisSpacing: 4.0,
       // crossAxisSpacing: 4.0,
-      itemCount: list.length,
+      // itemCount: list.length,
+      itemCount: photoList.photos.length,
       itemBuilder: (BuildContext context, int index) {
-          if(qualityurl==5) {
-          print(qualityurl);
-          photourl = list[index].url.thumbnail;
-        }else if(qualityurl==4) {
-          print(qualityurl);
-          photourl = list[index].url.small;
-        }else {
-          print(qualityurl);
-          photourl = list[index].url.regular;
-        }
+        photourl = photoList.photos[index].url.regular;
+        // if (qualityurl == 5) {
+        //   print(qualityurl);
+        //   photourl = list[index].url.thumbnail;
+        // } else if (qualityurl == 4) {
+        //   print(qualityurl);
+        //   photourl = list[index].url.small;
+        // } else {
+        //   print(qualityurl);
+        //   photourl = list[index].url.regular;
+        // }
         return Container(
           margin: EdgeInsets.all(5),
           decoration: BoxDecoration(
@@ -263,8 +284,9 @@ class _oneState extends State<one> {
             onTap: () {
               Navigator.push(
                   context,
-                  MaterialPageRoute(builder: (context) => photodetails(photoList.photos[index]))
-              );
+                  MaterialPageRoute(
+                      builder: (context) =>
+                          photodetails(photoList.photos[index])));
             },
             child: Image.network(
               '$photourl',
@@ -278,18 +300,14 @@ class _oneState extends State<one> {
       },
     );
   }
+
   Widget qualitysnackermsg(String msg) {
     return SnackBar(
-      content: Text(
-        '$msg'
-      ),
+      content: Text('$msg'),
       action: SnackBarAction(
         label: 'Change',
-        onPressed: () {
-
-        },
+        onPressed: () {},
       ),
     );
   }
 }
-

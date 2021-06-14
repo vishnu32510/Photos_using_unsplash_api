@@ -7,7 +7,7 @@ import 'package:convert/convert.dart' as convert;
 import 'package:unsplash_api/constants.dart';
 import 'package:unsplash_api/screenone/model.dart';
 
-Future view(int page, int length,String url) async {
+Future<PhotoList> view(int page, int length,String url) async {
 
 
   // var response = await http.get(url);
@@ -16,10 +16,10 @@ Future view(int page, int length,String url) async {
   // print(baseurl+url+clientid);
   var response = await Dio().get('$baseurl$url$clientid',queryParameters: {'page' : page, 'per_page': length});
   var data = response.data;
-  print(data);
-  print(data[0]['likes']);
-  var re = PhotoList.fromjson(data);
-  print(re.photos.length);
+  // print(data);
+  // print(data[0]['likes']);
+  var re = PhotoList.fromJson(data);
+  // print(re.photos.length);
   return re;
 }
 
@@ -51,7 +51,7 @@ Future searchview(int page, int length,String url,String search,BuildContext con
   );
   ScaffoldMessenger.of(context).showSnackBar(snackBar);
 
-  var re = PhotoList.fromjson(data['results']);
+  var re = PhotoList.fromJson(data['results']);
   print(re.photos.length);
   return re;
 }

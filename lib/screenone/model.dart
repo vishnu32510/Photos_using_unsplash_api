@@ -6,7 +6,7 @@ class PhotoList {
   PhotoList({this.photos});
 
 
-  factory PhotoList.fromjson(List<dynamic> json) {
+  factory PhotoList.fromJson(List<dynamic> json) {
 
     List<Photo> photos = [];
     photos = json.map((i)=>Photo.fromJson(i)).toList();
