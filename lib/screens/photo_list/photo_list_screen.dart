@@ -24,10 +24,22 @@ class PhotosListScreen extends StatefulWidget {
 
 class _PhotosListScreenState extends State<PhotosListScreen> {
 
+  ScrollController _controller;
+
   @override
   void initState() {
     super.initState();
-    context.read<PhotosBloc>();
+    context.read<PhotosBloc>()..add(PhotoFetched());
+    _controller = new ScrollController();
+    _controller.addListener(_scrollListener);
+  }
+
+  _scrollListener() {
+    if (_controller.offset >= _controller.position.maxScrollExtent &&
+        !_controller.position.outOfRange) {
+      print('Scroll listener');
+      // context.read<PhotosBloc>()..add(PhotoFetched());
+    }
   }
 
   @override
@@ -68,6 +80,7 @@ class _PhotosListScreenState extends State<PhotosListScreen> {
 
   Widget photoList(BuildContext context,PhotoList photoList) {
     return StaggeredGridView.countBuilder(
+      controller: _controller,
       crossAxisCount: 2,
       staggeredTileBuilder: (int index) =>
       new StaggeredTile.count(1, index.isEven ? 2 : 1),

@@ -25,12 +25,12 @@ class _SplashState extends State<Splash> {
   }
 
   startTime() async {
-    var duration = new Duration(seconds: 10);
+    var duration = new Duration(seconds: 3);
     return new Timer(duration, route);
   }
 
   route() {
-    Navigator.of(context).pushNamed(PhotosListScreen.routeName);
+    Navigator.of(context).pushReplacementNamed(PhotosListScreen.routeName);
   }
 
   @override
@@ -41,7 +41,7 @@ class _SplashState extends State<Splash> {
         child: Container(
           child: InkWell(
             onDoubleTap: () {
-              route();
+              // route();
             },
             child: Lottie.asset(
               'assets/images_splash.json',

@@ -12,7 +12,7 @@ void main() {
   EquatableConfig.stringify = kDebugMode;
   Bloc.observer = SimpleBlocObserver();
   runApp(BlocProvider(
-    create: (_) => PhotosBloc()..add(PhotoFetched()),
+    create: (_) => PhotosBloc(),
     child: MaterialApp(
       title: 'UnSplash',
       theme: ThemeData(
