@@ -1,39 +1,39 @@
-// import 'dart:js';
-
-import 'package:flutter/gestures.dart';
 import 'package:flutter/services.dart';
 import 'package:photo_view/photo_view.dart';
-import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
-import 'package:unsplash_api/constants.dart';
-import 'package:unsplash_api/screenone/model.dart';
 import 'package:image_downloader/image_downloader.dart';
-
-import '../widget.dart';
-
-
-class photodetails extends StatelessWidget {
-  Photo photo;
+import 'package:unsplash_api/models/models.dart';
+import 'package:unsplash_api/widget.dart';
 
 
 
-  photodetails(this.photo);
-  int page=1;
+class PhotoDetailsScreen extends StatelessWidget {
+  static const String routeName = '/photoDetails';
+
+  static Route route(Photo photo) {
+    return MaterialPageRoute(
+        settings: const RouteSettings(name: routeName),
+        builder: (context) =>
+            PhotoDetailsScreen(photo)
+    );
+  }
+  final Photo photo;
+  PhotoDetailsScreen(this.photo);
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
     return Scaffold(
       appBar: AppBar(
         actions: [
-          popup(photo),
+          popup(context,photo),
         ],
-        backgroundColor: appbarcolor,
+        backgroundColor: Theme.of(context).primaryColor,
         title: Text(
-          'Photo details'
+            'Photo details'
         ),
         centerTitle: true,
       ),
-      backgroundColor: backgroundcolor,
+      backgroundColor: Theme.of(context).backgroundColor,
       body: SingleChildScrollView(
         child: Column(
           children: [
@@ -42,11 +42,14 @@ class photodetails extends StatelessWidget {
               width: size.width,
               child: AspectRatio(
                 aspectRatio: 1,
-                child: PhotoView(
-                  minScale: PhotoViewComputedScale.contained * 0.8,
-                  maxScale: PhotoViewComputedScale.covered * 2,
-                  imageProvider: NetworkImage(
+                child: Hero(
+                  tag: photo.url.raw.toString(),
+                  child: PhotoView(
+                    minScale: PhotoViewComputedScale.contained * 0.8,
+                    maxScale: PhotoViewComputedScale.covered * 2,
+                    imageProvider: NetworkImage(
                       photo.url.regular,
+                    ),
                   ),
                 ),
               ),
@@ -58,11 +61,11 @@ class photodetails extends StatelessWidget {
                 //   borderRadius: BorderRadius.circular(500)
                 // ),
                 child: ListTile(
-                  tileColor: appbarcolor,
+                  tileColor: Theme.of(context).primaryColor,
                   subtitle: Text(
                     '${photo.alt_description}',
                     style: TextStyle(
-                        color: Colors.white.withAlpha(70),
+                      color: Colors.white.withAlpha(70),
                     ),
                   ),
                   leading: Icon(
@@ -75,7 +78,7 @@ class photodetails extends StatelessWidget {
                     child: Text(
                       '${photo.user.username}',
                       style: TextStyle(
-                          color: Colors.white,
+                        color: Colors.white,
                         fontSize: 25,
                       ),
                     ),
@@ -84,7 +87,7 @@ class photodetails extends StatelessWidget {
                   trailing: Text(
                     '❤️  ${photo.likes}  ',
                     style: TextStyle(
-                      color: Colors.white
+                        color: Colors.white
                     ),
                   ),
                 ),
@@ -98,14 +101,14 @@ class photodetails extends StatelessWidget {
 
 }
 
-void download(BuildContext context, String photourl) async {
+void download(BuildContext context, String photoUrl) async {
   try {
     var imageId;
-    imageId = await ImageDownloader.downloadImage(photourl);
+    imageId = await ImageDownloader.downloadImage(photoUrl);
     print('inside');
     if (imageId == null) {
       final snackBar = SnackBar(
-        backgroundColor: appbarcolor,
+        backgroundColor: Theme.of(context).primaryColor,
         content: Text('Something went wrong'),
         action: SnackBarAction(
           label: 'Dismiss',
@@ -127,7 +130,7 @@ void download(BuildContext context, String photourl) async {
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
-    var path = await ImageDownloader.findPath(imageId);
+    await ImageDownloader.findPath(imageId);
   } on PlatformException catch (error) {
     print(error);
   }

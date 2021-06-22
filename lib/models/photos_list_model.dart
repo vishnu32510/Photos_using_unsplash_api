@@ -1,6 +1,8 @@
 
 
-class PhotoList {
+import 'package:equatable/equatable.dart';
+
+class PhotoList extends  Equatable{
   List<Photo> photos;
 
   PhotoList({this.photos});
@@ -12,9 +14,13 @@ class PhotoList {
     photos = json.map((i)=>Photo.fromJson(i)).toList();
 
     return PhotoList(
-      photos: photos
+        photos: photos
     );
   }
+
+
+  @override
+  List<Object> get props => [photos];
 }
 
 class Photo{
@@ -36,8 +42,8 @@ class Photo{
     return new Photo(
       color: json['color'].toString(),
       alt_description: json['alt_description'],
-      url: Url.fromjson(json['urls']),
-      user: User.fromjson(json['user']),
+      url: Url.fromJson(json['urls']),
+      user: User.fromJson(json['user']),
       likes: json['likes'].toString(),
 
     );
@@ -54,7 +60,7 @@ class Url {
 
   Url({this.regular,this.small,this.full,this.thumbnail,this.raw});
 
-  factory Url.fromjson(Map<String, dynamic> json) {
+  factory Url.fromJson(Map<String, dynamic> json) {
     return Url(
       regular: json['regular'],
       full: json['full'],
@@ -71,7 +77,7 @@ class User {
 
   User({this.username});
 
-  factory User.fromjson(Map<String, dynamic> json) {
+  factory User.fromJson(Map<String, dynamic> json) {
     return User(
       username: json['username'],
     );

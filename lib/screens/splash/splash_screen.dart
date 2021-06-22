@@ -1,13 +1,18 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:lottie/lottie.dart';
-import 'package:unsplash_api/screenone/bloc_screenone/photos_bloc.dart';
-import 'package:unsplash_api/screenone/model.dart';
-import 'package:unsplash_api/screenone/one.dart';
+import 'package:unsplash_api/screens/photo_list/photo_list_screen.dart';
 
 class Splash extends StatefulWidget {
+  static const String routeName = '/splash';
+
+  static Route route() {
+    return MaterialPageRoute(
+        settings: const RouteSettings(name: routeName),
+        builder: (context) =>
+            Splash()
+    );
+  }
   @override
   _SplashState createState() => _SplashState();
 }
@@ -15,7 +20,6 @@ class Splash extends StatefulWidget {
 class _SplashState extends State<Splash> {
 
   void initState() {
-    // TODO: implement initState
     super.initState();
     startTime();
   }
@@ -26,11 +30,7 @@ class _SplashState extends State<Splash> {
   }
 
   route() {
-    Navigator.pushReplacement(context, MaterialPageRoute(
-        builder: (context) =>
-            one()
-    )
-    );
+    Navigator.of(context).pushNamed(PhotosListScreen.routeName);
   }
 
   @override
