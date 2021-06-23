@@ -13,9 +13,7 @@ class PhotosListScreen extends StatefulWidget {
   static Route route() {
     return MaterialPageRoute(
         settings: const RouteSettings(name: routeName),
-        builder: (context) =>
-            PhotosListScreen()
-    );
+        builder: (context) => PhotosListScreen());
   }
 
   @override
@@ -23,7 +21,6 @@ class PhotosListScreen extends StatefulWidget {
 }
 
 class _PhotosListScreenState extends State<PhotosListScreen> {
-
   ScrollController _controller;
 
   @override
@@ -34,11 +31,18 @@ class _PhotosListScreenState extends State<PhotosListScreen> {
     _controller.addListener(_scrollListener);
   }
 
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+
   _scrollListener() {
-    if (_controller.offset >= _controller.position.maxScrollExtent &&
-        !_controller.position.outOfRange) {
+    if (_controller.offset >= _controller.position.maxScrollExtent*0.7) {
+      _controller.removeListener(_scrollListener);
       print('Scroll listener');
-      // context.read<PhotosBloc>()..add(PhotoFetched());
+      context.read<PhotosBloc>()..add(PhotoFetched());
     }
   }
 
@@ -50,9 +54,7 @@ class _PhotosListScreenState extends State<PhotosListScreen> {
         backgroundColor: Colors.black,
         appBar: AppBar(
           automaticallyImplyLeading: false,
-          backgroundColor: Theme
-              .of(context)
-              .primaryColor,
+          backgroundColor: Theme.of(context).primaryColor,
           centerTitle: true,
           title: Text('UnSplash'),
         ),
@@ -66,8 +68,27 @@ class _PhotosListScreenState extends State<PhotosListScreen> {
                   ),
                 );
               case PhotosStatus.success:
+                _controller.addListener(_scrollListener);
                 return Container(
-                  child: photoList(context,state.photoList),
+                  child: StaggeredGridView.countBuilder(
+                    controller: _controller,
+                    crossAxisCount: 2,
+                    staggeredTileBuilder: (int index) =>
+                        new StaggeredTile.count(1, index.isEven ? 2 : 1),
+                    itemCount: !state.hasReachedMax?state.photos.length:state.photos.length+1,
+                    itemBuilder: (BuildContext context, int index) {
+                      return state.hasReachedMax
+                          ? Center(
+                              child: SizedBox(
+                                height: 24,
+                                width: 24,
+                                child:
+                                    CircularProgressIndicator(strokeWidth: 1.5),
+                              ),
+                            )
+                          : photoTile(context, state.photos[index]);
+                    },
+                  ),
                 );
               default:
                 return Container();
@@ -78,39 +99,32 @@ class _PhotosListScreenState extends State<PhotosListScreen> {
     );
   }
 
-  Widget photoList(BuildContext context,PhotoList photoList) {
-    return StaggeredGridView.countBuilder(
-      controller: _controller,
-      crossAxisCount: 2,
-      staggeredTileBuilder: (int index) =>
-      new StaggeredTile.count(1, index.isEven ? 2 : 1),
-      itemCount: photoList.photos.length,
-      itemBuilder: (BuildContext context, int index) {
-        return Container(
-          margin: EdgeInsets.all(5),
-          decoration: BoxDecoration(
-            color: Theme
-                .of(context)
-                .backgroundColor,
-          ),
-          child: InkWell(
-            onTap: () {
-              HapticFeedback.mediumImpact();
-              Navigator.of(context).pushNamed(
-                PhotoDetailsScreen.routeName,
-                arguments: photoList.photos[index],
-              );
+  Widget photoTile(BuildContext context, Photo photo) {
+    return Container(
+      margin: EdgeInsets.all(5),
+      decoration: BoxDecoration(
+        color: Theme.of(context).backgroundColor,
+      ),
+      child: InkWell(
+        onTap: () {
+          HapticFeedback.mediumImpact();
+          Navigator.of(context).pushNamed(
+            PhotoDetailsScreen.routeName,
+            arguments: photo,
+          );
+        },
+        child: Hero(
+          tag: photo.url.raw.toString(),
+          child: Image.network(
+            '${photo.url.regular}',
+            fit: BoxFit.cover,
+            loadingBuilder: (BuildContext context, Widget child,ImageChunkEvent loadingProgress){
+              if (loadingProgress == null) return child;
+              return onLoadingTwirling();
             },
-            child: Hero(
-              tag: photoList.photos[index].url.raw.toString(),
-              child: Image.network(
-                '${photoList.photos[index].url.regular}',
-                fit: BoxFit.cover,
-              ),
-            ),
           ),
-        );
-      },
+        ),
+      ),
     );
   }
 }

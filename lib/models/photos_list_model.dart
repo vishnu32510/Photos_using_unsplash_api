@@ -23,7 +23,7 @@ class PhotoList extends  Equatable{
   List<Object> get props => [photos];
 }
 
-class Photo{
+class Photo extends Equatable{
   String color;
   String likes;
   User user;
@@ -48,6 +48,10 @@ class Photo{
 
     );
   }
+
+  @override
+  // TODO: implement props
+  List<Object> get props => [likes,url,color,alt_description,url];
 
 }
 

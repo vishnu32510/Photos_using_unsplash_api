@@ -65,3 +65,19 @@ onLoading() {
     ),
   );
 }
+onLoadingRocket() {
+  return Container(
+    child: Lottie.asset(
+      'assets/rocket_loading.json',
+      repeat: true,
+    ),
+  );
+}
+onLoadingTwirling() {
+  return Container(
+    child: Lottie.asset(
+      'assets/twirling_loading.json',
+      repeat: true,
+    ),
+  );
+}

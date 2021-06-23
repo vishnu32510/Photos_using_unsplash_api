@@ -37,9 +37,10 @@ dependencies:
   image_downloader: 0.20.1
   fluttertoast: 7.1.8
   lottie: ^1.0.1
-  cached_network_image: 2.5.0
+#  cached_network_image: ^3.0.0
   flutter_bloc: ^7.0.1
   equatable: ^2.0.2
+  rxdart: ^0.27.1
 
 
 dev_dependencies:
